@@ -1,0 +1,314 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>工厂模式的理解和php实践 | n&#39;t Niu</title>
+  <meta name="author" content="abutme">
+  
+  <meta name="description" content="更多人知道的模式应该是单例模式，工厂模式我觉得次之。对象的创建是模式的基础，这些模式或是借力于工厂，或是有些许工厂的影子。
+工厂模式通常分简单工厂、工厂方法和抽象工厂。
+举个很有体会的例子来说明，一个app产品，同时有Android，iOS，Win Phone几个手机平台的适配。假定这几个平台分别有同样的需求，即检测版本是否升级的接口。如果代码里有这样一段决策的逻辑：">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="工厂模式的理解和php实践"/>
+  <meta property="og:site_name" content="n&#39;t Niu"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="n&#39;t Niu" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">n&#39;t Niu</a></h1>
+  <h2><a href="/">Kbhiter or Bkpacker, always</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/reading">Reading List</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="/">Home</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-10-12T17:07:04.000Z"><a href="/2013/10/13/program-design-pattern/">Oct 13 2013</a></time>
+      
+      
+  
+    <h1 class="title">工厂模式的理解和php实践</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>更多人知道的模式应该是单例模式，工厂模式我觉得次之。对象的创建是模式的基础，这些模式或是借力于工厂，或是有些许工厂的影子。</p>
+<p>工厂模式通常分简单工厂、工厂方法和抽象工厂。</p>
+<p>举个很有体会的例子来说明，一个app产品，同时有Android，iOS，Win Phone几个手机平台的适配。假定这几个平台分别有同样的需求，即检测版本是否升级的接口。如果代码里有这样一段决策的逻辑：</p>
+<a id="more"></a>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Update</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">toUpdate</span><span class="params">(<span class="variable">$uap</span>)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$uap</span> === <span class="string">'android'</span>)&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> AndroidUpm();</span><br><span class="line">        &#125;<span class="keyword">elseif</span>(<span class="variable">$uap</span> === <span class="string">'ios'</span>)&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> IosUpm();</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> WpUpm();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$upm</span>-&gt;toUpdate();</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这种设计导致Update类依赖的是具体的产品类，形成了向下依赖。随着产品的变化，可能增加更多的平台例如：symbian、bada，就需要不断修改if/else的逻辑。还有可能，某天将iOS的逻辑修改为和Android一样。</p>
+<p>这个时候，是时候想起OO的一个原则：<code>封装变化</code>，以此来达到<code>对修改封闭</code>的效果。分离决策对象创建的逻辑，引入工厂来专业做这件事情吧。<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Update</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">toUpdate</span><span class="params">(<span class="variable">$uap</span>)</span></span>&#123;</span><br><span class="line">        <span class="variable">$upm</span> = SimpleUpmFactory::createUpm(<span class="variable">$uap</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$upm</span>-&gt;toUpdate();</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SimpleUpmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">createUpm</span><span class="params">(<span class="variable">$uap</span>)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$uap</span> === <span class="string">'android'</span>)&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> AndroidUpm();</span><br><span class="line">        &#125;<span class="keyword">elseif</span>(<span class="variable">$uap</span> === <span class="string">'ios'</span>)&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> IosUpm();</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> WpUpm();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$upm</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这就引出了<code>简单工厂</code>SimpleUpmFactory，不少号称用了工厂方法的代码实际只是一个简单工厂，很可能还是个静态工厂。</p>
+<p>不过不难发现，静态工厂不可取，一方面Update对其强依赖，可测性不高；另一方面限制了不能在运行时修改行为了。另一种更好的写法是这样：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Update</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$upmFac</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">(<span class="variable">$upmFac</span>)</span></span>&#123;</span><br><span class="line">        <span class="variable">$this</span>-&gt;upmFac = <span class="variable">$upmFac</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setUpmFac</span><span class="params">(<span class="variable">$upmFac</span>)</span></span>&#123;</span><br><span class="line">        <span class="variable">$this</span>-&gt;upmFac = <span class="variable">$upmFac</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">toUpdate</span><span class="params">(<span class="variable">$uap</span>)</span></span>&#123;</span><br><span class="line">        <span class="variable">$upm</span> = <span class="variable">$this</span>-&gt;upmFac-&gt;createUpm(<span class="variable">$uap</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$upm</span>-&gt;toUpdate();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SimpleUpmFactory</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">createUpm</span><span class="params">(<span class="variable">$uap</span>)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$uap</span> === <span class="string">'android'</span>)&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> AndroidUpm();</span><br><span class="line">        &#125;<span class="keyword">elseif</span>(<span class="variable">$uap</span> === <span class="string">'ios'</span>)&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> IosUpm();</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> WpUpm();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$upm</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样让依赖工厂的类采用组合并提供set方法实现依赖注入而不是静态依赖。</p>
+<p>再回到简单工厂的问题，这个时候增加了一个类，分离了变化，以后要修改也只需修改工厂了。看似已经够用了，但是产品需求又变化了。这个时候需要增加pad版的适配，怎么办？一种扩展方法是直接修改现有的逻辑，增加if分支。你可能会说createUpm方法需要增加pad还是phone标识的形参，这个问题不用考虑，实际中的参数都是一个信息很全的参数数组，这里只是示例。另一种相对更好的扩展方法是再增加一个针对pad的简单工厂<em>SimplePadUpmFactory</em>，让phone和pad解耦，实现方法类似。<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SimplePadUpmFactory</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">createUpm</span><span class="params">(<span class="variable">$uap</span>)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$uap</span> === <span class="string">'android'</span>)&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> AndroidPadUpm();</span><br><span class="line">        &#125;<span class="keyword">elseif</span>(<span class="variable">$uap</span> === <span class="string">'ios'</span>)&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> IosPadUpm();</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="variable">$upm</span> = <span class="keyword">new</span> WpPadUpm();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$upm</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样又增加了一个类，依赖工厂的<em>Update</em>类也不需要做修改，看似简单工厂完全够用了呢。这种说法基于两个前提：</p>
+<p>1）<em>Update</em>类的组合对象<em>upmFac</em>是超类型</p>
+<p>在C++/Java里类属性是需要指定类型的。php用模式<code>不爽的地方</code>就是不用标明变量和函数返回的类型，包括函数形参的类型也是后面才可选地支持类型提示。</p>
+<p>2）<em>Update</em>类的<em>toUpdate</em>接口返回类型是超类型</p>
+<p>理由同上。这之前在说工厂<code>创建者</code>，并没有提创建的<code>产品</code>，是的产品也需要继承自同一个父类的。</p>
+<p>也就是说，php里理论上可以不让创建者或者产品形成继承层次，但是你应该这么做才称得上是模式。</p>
+<p>基于假设修改后，这么修改后就不再是<code>简单工厂</code>了，而是引入到<code>工厂方法</code>模式。重新调整代码后：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">UpmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createUpm</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PadUpmFactory</span> <span class="keyword">implements</span> <span class="title">UpmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createUpm</span><span class="params">(<span class="variable">$uap</span>)</span></span>&#123;</span><br><span class="line">        <span class="comment">//略去if/else</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneUpmFactory</span> <span class="keyword">implements</span> <span class="title">UpmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createUpm</span><span class="params">(<span class="variable">$uap</span>)</span></span>&#123;</span><br><span class="line">        <span class="comment">//略去if/else</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Upm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AndroidAppUpm</span> <span class="keyword">extends</span> <span class="title">Upm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AndroidPadUpm</span> <span class="keyword">extends</span> <span class="title">Upm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IosAppUpm</span> <span class="keyword">extends</span> <span class="title">Upm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IosPadUpm</span> <span class="keyword">extends</span> <span class="title">Upm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WpAppUpm</span> <span class="keyword">extends</span> <span class="title">Upm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WpPadUpm</span> <span class="keyword">extends</span> <span class="title">Upm</span></span>&#123;&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="也许你会有如下问题：">也许你会有如下问题：</h3><p>1）我怎么多了这么多类？</p>
+<p>是的，工厂方法模式的特点或者说不太好的地方就是会架设两套平行的类层次，类数量会增加（抽象工厂更甚）。想想分散在业务逻辑里的if/else代码你会觉得这种集中管理是值得的。</p>
+<p>2）为什么创建者的顶层类用接口而产品的顶层类用抽象类？</p>
+<p>其实都可以，看实际需要。面向接口编程实际就是面向抽象而不是具体。</p>
+<p>3）跟简单工厂相比的优势在哪？</p>
+<p>你也看到前面的场景了，依赖工厂的<em>Update</em>类没有做任何修改就可以实现扩展，已有的创建者也不会受影响。工厂方法相当于一个创建框架，可以起到一定的收敛作用，例如：顶层类提供强制或推荐的一些方法调用。</p>
+<p>4）那实例化延迟到子类怎么理解？</p>
+<p>可以看到创建者父类并不知道要创建哪个产品，而是交给了子类。决定用什么子类实际是调用者（顾客）来决定。例如在MVC框架下，C层经常做这种事情。有的人就问了，我到C层的时候要用if/else来决定用哪个子类呢？这难道陷入死循环了？在实例化<em>UpmFactory</em>的时候你需要知道该用哪个了。如果出现分支选择，就需要修改类的设计了。一方面可以在C层也加一层工厂（MVC框架下，<code>每一层都可能都需要个工厂</code>），还有一种方案是利用框架的分发能力拆解。否则，你就需要下移这个决策到现有的工厂，也是需要修改设计的。</p>
+<p>5）通过传参用简单工厂来实现，不也是直接依赖具体的类么？</p>
+<p>前面的例子中工厂方法实现是简单工厂的方式，结合3）看他们并不是简单的替换关系。这种依赖是必要的，因为没法消灭new，只是把new依赖转移到工厂，而工厂是不妨碍单测的。</p>
+<p>尽管如此，本人还是推荐让<code>工厂方法不要有if/else</code>。下面引入<code>抽象工厂</code>来改写。抽象工厂意味着产品簇，相当于创建工作的横向化。</p>
+<p>由于平台有多个，就把各个平台当成一个簇来创建。<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">UpmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createAndroidUpm</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createIosUpm</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createWpUpm</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PadUpmFactory</span> <span class="keyword">implements</span> <span class="title">UpmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createAndroidUpm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PadAndroidUpm();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createIosUpm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PadIosUpm();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createWpUpm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PadWpUpm();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneUpmFactory</span> <span class="keyword">implements</span> <span class="title">UpmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createAndroidUpm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PhoneAndroidUpm();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createIosUpm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PhoneIosUpm();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createWpUpm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PhoneWpUpm();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">PadUpm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">PhoneUpm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneAndroidUpm</span> <span class="keyword">implements</span> <span class="title">PhoneUpm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneIosUpm</span> <span class="keyword">implements</span> <span class="title">PhoneUpm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhoneWpUpm</span> <span class="keyword">implements</span> <span class="title">PhoneUpm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PadAndroidUpm</span> <span class="keyword">implements</span> <span class="title">PadUpm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PadIosUpm</span> <span class="keyword">implements</span> <span class="title">PadUpm</span></span>&#123;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PadWpUpm</span> <span class="keyword">implements</span> <span class="title">PadUpm</span></span>&#123;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>与工厂方法的实现相比较，去掉了if/else逻辑，创建框架也更加清晰。可以发现<code>抽象工厂的方法都是一个工厂方法</code>！这对于复用的修改是很灵活的。例如，Pad的iOS逻辑可以复用Phone的iOS逻辑。</p>
+<p>再回到需求，如果不只是有检测版本是否升级的接口，还有是否激活检测、数据更新检测等接口呢？我们又想公用一个抽象工厂，还得修改设计，至少要把类名改成更通用：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">XmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createAndroidUpm</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createIosUpm</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createWpUpm</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createAndroidAcm</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createIosAcm</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createWpAcm</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">//...more</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样修改有个问题，会导致创建者子类不管需不需要都要加一堆实现。也许你会想把顶级<em>XmFactory</em>接口修改为abstract，对于可能不常用的方法提供默认实现。</p>
+<p>本人更推荐稳定抽象工厂的簇维度，就是说设计抽象工厂的时候，也许有多种关联关系，优先<code>把稳定的维度作为簇</code>更好。总之能用interface有时候会比abstract好一点点，因为一般的面向对象语言都不提供多重继承，但是却有多重实现。这个案例，有三个维度：产品、平台、接口。<code>抽象工厂需要结合工厂方法</code>。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">XmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createAndroid</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createIos</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createWp</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PadmFactory</span> <span class="keyword">implements</span> <span class="title">XmFactory</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createAndroid</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PadAndroid();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createIos</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PadIos();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createWp</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PadWp();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> Pad&#123;</span><br><span class="line">    <span class="keyword">abstract</span> <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createUpm</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">abstract</span> <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createAcm</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PadAndroid</span> <span class="keyword">implements</span> <span class="title">Pad</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createUpm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PhoneAndroidUpm();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createAcm</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PhoneAndroidAcm();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//..其他类似</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，维度超过2个的时候，抽象工厂创建的产品本身就是个工厂方法模式。在实践中，这么用的确容易绕进去，不过效果很好。</p>
+<p>当维度再增加的时候，光用抽象工厂也不好做了，在项目中尝试了装饰模式的整合，效果不错。</p>
+<p>这个模式的个人理解就说到这了。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/编码/">编码</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/工厂模式/">工厂模式</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread" data-title="工厂模式的理解和php实践" data-url="http://abutme.net/2013/10/13/program-design-pattern/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"abutme"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+<div class="widget about_me">
+  <h3 class="title">ABOUT 小小小牛</h3>
+  <ul class="entry">
+    
+    <li><img width="150" title="avatar" src="http://tp4.sinaimg.cn/1245869163/180/5649763343/1" /></li>
+    
+    
+    <li>life being, dream being</li>
+    
+    <li>微博：<a href="http://weibo.com/abutme" target="_BLANK">@小小小牛</a></li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/blog/">blog</a><small>1</small></li>
+  
+    <li><a href="/categories/编码/">编码</a><small>5</small></li>
+  
+    <li><a href="/categories/网络/">网络</a><small>1</small></li>
+  
+    <li><a href="/categories/阅读/">阅读</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/ZF2/">ZF2</a><small>1</small></li>
+  
+    <li><a href="/tags/gzip压缩/">gzip压缩</a><small>1</small></li>
+  
+    <li><a href="/tags/hexo/">hexo</a><small>1</small></li>
+  
+    <li><a href="/tags/iterator/">iterator</a><small>1</small></li>
+  
+    <li><a href="/tags/markdown/">markdown</a><small>1</small></li>
+  
+    <li><a href="/tags/工厂模式/">工厂模式</a><small>1</small></li>
+  
+    <li><a href="/tags/数据库/">数据库</a><small>1</small></li>
+  
+    <li><a href="/tags/移动端/">移动端</a><small>2</small></li>
+  
+    <li><a href="/tags/程序员/">程序员</a><small>1</small></li>
+  
+    <li><a href="/tags/网络抓包/">网络抓包</a><small>1</small></li>
+  
+    <li><a href="/tags/职业发展/">职业发展</a><small>1</small></li>
+  
+    <li><a href="/tags/设计模式/">设计模式</a><small>2</small></li>
+  
+    <li><a href="/tags/调试/">调试</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2015/02/11/wireshark-network-analyzer/">wireshark网络包分析</a>
+      </li>
+    
+      <li>
+        <a href="/2015/02/10/network-packet-trace/">移动web前端抓包</a>
+      </li>
+    
+      <li>
+        <a href="/2014/05/14/iterator-pattern-around/">让iterator改变php传统编码</a>
+      </li>
+    
+      <li>
+        <a href="/2014/04/22/zf2_study_autoload/">ZF2的autoload机制分析</a>
+      </li>
+    
+      <li>
+        <a href="/2014/02/21/reading-apprenticeship/">软件开发者路线图</a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget duoshuo_recent_comments">
+  <h3 class="title">最新评论</h3>
+  <ul class="entry ds-recent-comments" data-num-items="5" data-show-avatars="0" data-show-title="1" data-show-time="1"></ul>
+</div>
+<!--多说js加载开始，一个页面只需要加载一次 -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"abutme"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!--多说js加载结束，一个页面只需要加载一次 -->
+
+
+  
+<div class="widget links">
+  <h3 class="title">链接</h3>
+  <ul class="entry">
+    
+    <li><a href="http://abutme.net" target="_BLANK">小小小牛</a></li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2015 abutme
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="http://libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+<div style="display:none;">
+  <!-- 你的百度统计代码 -->
+</div>
+</body>
+</html>

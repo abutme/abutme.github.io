@@ -1,0 +1,322 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>ZF2的autoload机制分析 | n&#39;t Niu</title>
+  <meta name="author" content="abutme">
+  
+  <meta name="description" content="今天开始研究一下zf2框架（含应用skeleton），很喜欢这种面向对象的风格，也是至今看过最喜欢的php代码风格。
+这里说一下对框架默认autoload机制的理解，基本原理：
+框架默认采用AutoloaderFactory来初始化和管理loaders，AutoloaderFactory通过静态工厂方法注入实现了SplAutoloader接口的待注册的loader类的路径和配置，静态工厂将配置中指定路径的loader类实例化并调用对应的register方法将loader的加载机制注册到SPL __autoload函数栈。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="ZF2的autoload机制分析"/>
+  <meta property="og:site_name" content="n&#39;t Niu"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="n&#39;t Niu" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">n&#39;t Niu</a></h1>
+  <h2><a href="/">Kbhiter or Bkpacker, always</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/reading">Reading List</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="/">Home</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-04-22T07:30:55.000Z"><a href="/2014/04/22/zf2_study_autoload/">Apr 22 2014</a></time>
+      
+      
+  
+    <h1 class="title">ZF2的autoload机制分析</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>今天开始研究一下zf2框架（含应用skeleton），很喜欢这种面向对象的风格，也是至今看过最喜欢的php代码风格。</p>
+<p>这里说一下对框架默认autoload机制的理解，基本原理：</p>
+<p>框架默认采用<code>AutoloaderFactory</code>来初始化和管理loaders，AutoloaderFactory通过静态工厂方法注入实现了SplAutoloader接口的待注册的loader类的路径和配置，静态工厂将配置中指定路径的loader类实例化并调用对应的register方法将loader的加载机制注册到SPL __autoload函数栈。</p>
+<a id="more"></a>
+<p>autoload机制的类图关系如下（只做示意）：</p>
+<p><img src="/images/zf2_study_autoload_1.jpg" alt="class relations by staruml" width="800"></p>
+<p>注意到，AutoloaderFactory的特点：</p>
+<blockquote>
+<ol>
+<li><p>抽象类，猜测原因是避免实例化再调用的方式；</p>
+</li>
+<li><p>StandardAutoloader的loader机制一定会被注册；</p>
+</li>
+<li><p>维护loader的单例，支持loader的注销；</p>
+</li>
+<li><p>支持多autoload机制，允许用户自定义autoload机制；</p>
+</li>
+<li><p>Loader的异常类都是直接require，而不会递归autoload；</p>
+</li>
+</ol>
+</blockquote>
+<p><code>StandardAutoloader</code>是基于文件查找的支持命名空间（namespaces）和前缀（prefixes）的类加载机制，zf2不推荐include_path的查找机制，不过还是提供了不被推荐的<code>fallback autoloader</code>的选项。</p>
+<blockquote>
+<ol>
+<li><p><code>namespaces</code>的机制是根据<code>命名空间+类名</code>建立和文件路径的对应关系，<code>Zend</code>命名空间的核心类就是以这种方式被autoload的；</p>
+</li>
+<li><p><code>prefixes</code>的机制相当于建立5.3以前不支持namespace的类命名和路径的部署关系；</p>
+</li>
+<li><p>根据类名所包括的分隔符种类来进行模式选择的，对于指定了fallback标识的会查找include_path；</p>
+</li>
+<li><p>标准的autoload实际是利用类名和文件路径和命名的规范对应，并<code>没有缓存机制</code>。</p>
+</li>
+</ol>
+</blockquote>
+<p><code>ClassMapAutoloader</code>设计的则是从性能出发，它建立类名和文件的映射关系，加载过一次的类直接从map中就可以找到。为此ZF提供了<code>classmap_generator.php</code>工具用于自动建立map对应关系。</p>
+<blockquote>
+<ol>
+<li><p>支持运行时手动配置和map文件静态配置；</p>
+</li>
+<li><p>适用于应用比较频繁的类，最好是数量较稳定的类；</p>
+</li>
+<li><p>在实际上线部署中增加类以后map文件同步更新会有问题；</p>
+</li>
+</ol>
+</blockquote>
+<p><code>ModuleAutoloader</code>是为<code>Module</code>准备的，在接下来的学习中再来补充。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/编码/">编码</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/ZF2/">ZF2</a>, <a href="/tags/设计模式/">设计模式</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread" data-title="ZF2的autoload机制分析" data-url="http://abutme.net/2014/04/22/zf2_study_autoload/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"abutme"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+<div class="widget about_me">
+  <h3 class="title">ABOUT 小小小牛</h3>
+  <ul class="entry">
+    
+    <li><img width="150" title="avatar" src="http://tp4.sinaimg.cn/1245869163/180/5649763343/1" /></li>
+    
+    
+    <li>life being, dream being</li>
+    
+    <li>微博：<a href="http://weibo.com/abutme" target="_BLANK">@小小小牛</a></li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/blog/">blog</a><small>1</small></li>
+  
+    <li><a href="/categories/编码/">编码</a><small>5</small></li>
+  
+    <li><a href="/categories/网络/">网络</a><small>1</small></li>
+  
+    <li><a href="/categories/阅读/">阅读</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/ZF2/">ZF2</a><small>1</small></li>
+  
+    <li><a href="/tags/gzip压缩/">gzip压缩</a><small>1</small></li>
+  
+    <li><a href="/tags/hexo/">hexo</a><small>1</small></li>
+  
+    <li><a href="/tags/iterator/">iterator</a><small>1</small></li>
+  
+    <li><a href="/tags/markdown/">markdown</a><small>1</small></li>
+  
+    <li><a href="/tags/工厂模式/">工厂模式</a><small>1</small></li>
+  
+    <li><a href="/tags/数据库/">数据库</a><small>1</small></li>
+  
+    <li><a href="/tags/移动端/">移动端</a><small>2</small></li>
+  
+    <li><a href="/tags/程序员/">程序员</a><small>1</small></li>
+  
+    <li><a href="/tags/网络抓包/">网络抓包</a><small>1</small></li>
+  
+    <li><a href="/tags/职业发展/">职业发展</a><small>1</small></li>
+  
+    <li><a href="/tags/设计模式/">设计模式</a><small>2</small></li>
+  
+    <li><a href="/tags/调试/">调试</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2015/02/11/wireshark-network-analyzer/">wireshark网络包分析</a>
+      </li>
+    
+      <li>
+        <a href="/2015/02/10/network-packet-trace/">移动web前端抓包</a>
+      </li>
+    
+      <li>
+        <a href="/2014/05/14/iterator-pattern-around/">让iterator改变php传统编码</a>
+      </li>
+    
+      <li>
+        <a href="/2014/04/22/zf2_study_autoload/">ZF2的autoload机制分析</a>
+      </li>
+    
+      <li>
+        <a href="/2014/02/21/reading-apprenticeship/">软件开发者路线图</a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget duoshuo_recent_comments">
+  <h3 class="title">最新评论</h3>
+  <ul class="entry ds-recent-comments" data-num-items="5" data-show-avatars="0" data-show-title="1" data-show-time="1"></ul>
+</div>
+<!--多说js加载开始，一个页面只需要加载一次 -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"abutme"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!--多说js加载结束，一个页面只需要加载一次 -->
+
+
+  
+<div class="widget links">
+  <h3 class="title">链接</h3>
+  <ul class="entry">
+    
+    <li><a href="http://abutme.net" target="_BLANK">小小小牛</a></li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2015 abutme
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="http://libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+<div style="display:none;">
+  <!-- 你的百度统计代码 -->
+</div>
+</body>
+</html>

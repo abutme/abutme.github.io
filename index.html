@@ -1,0 +1,597 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>n&#39;t Niu</title>
+  <meta name="author" content="abutme">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="n&#39;t Niu"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="n&#39;t Niu" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">n&#39;t Niu</a></h1>
+  <h2><a href="/">Kbhiter or Bkpacker, always</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/reading">Reading List</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="/">Home</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-02-11T00:08:08.000Z"><a href="/2015/02/11/wireshark-network-analyzer/">Feb 11 2015</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/02/11/wireshark-network-analyzer/">wireshark网络包分析</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>本文的前提是，我们已经知道抓包方法或者手头有个pcap包。不了解抓包的，可以移步上一篇文章：<a href="/2015/02/10/network-packet-trace/">移动web前端抓包</a></p>
+<p>关于wireshark分析方法，网上教程不少，基于此说一些个人的理解。</p>
+<p>本文以小度wifi为热点，让iPhone连接对应的热点。</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/02/11/wireshark-network-analyzer/#more" class="more-link">全文</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-02-10T00:08:08.000Z"><a href="/2015/02/10/network-packet-trace/">Feb 10 2015</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/02/10/network-packet-trace/">移动web前端抓包</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>数据包是最贴近真实的场景还原，可以作为技术人员间解决问题的可信依据（出问题，先给我包！）。</p>
+<p>移动端抓包调试是重要技能。浏览器自带的开发者工具，如chrome F12就是大家都熟悉的抓包工具。抓包是门学问，不过通常情况下，我们只需要关注发送和接收的数据包内容就可以解决问题了。</p>
+<p>本文主要总结本人在移动web前端开发中的抓包方法，不涉及原理分析，主要用来解决一些关乎网络状况、手机特性等线下不好复现的问题，比方说：在微信中出现不符合预期的页面返回、或者在某网络下出现劫持或乱码、或者某android手机偶发登录问题。</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/02/10/network-packet-trace/#more" class="more-link">全文</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-05-14T08:59:43.000Z"><a href="/2014/05/14/iterator-pattern-around/">May 14 2014</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/05/14/iterator-pattern-around/">让iterator改变php传统编码</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>设计模式里有个迭代器模式，该模式是依赖Iterator接口的。php5开始支持内置的Iterator接口，有java编码经验的应该对java.util下的iterator不陌生。</p>
+<p>之前读过鸟哥的一篇博文<a href="http://www.laruence.com/2008/10/31/574.html">关于一笔试题(Iterator模式) </a>，其中深入分析了怎么用foreach遍历对象的私有属性。php5开始foreach支持遍历对象，不过是public属性。</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2014/05/14/iterator-pattern-around/#more" class="more-link">全文</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-04-22T07:30:55.000Z"><a href="/2014/04/22/zf2_study_autoload/">Apr 22 2014</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/04/22/zf2_study_autoload/">ZF2的autoload机制分析</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>今天开始研究一下zf2框架（含应用skeleton），很喜欢这种面向对象的风格，也是至今看过最喜欢的php代码风格。</p>
+<p>这里说一下对框架默认autoload机制的理解，基本原理：</p>
+<p>框架默认采用<code>AutoloaderFactory</code>来初始化和管理loaders，AutoloaderFactory通过静态工厂方法注入实现了SplAutoloader接口的待注册的loader类的路径和配置，静态工厂将配置中指定路径的loader类实例化并调用对应的register方法将loader的加载机制注册到SPL __autoload函数栈。</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2014/04/22/zf2_study_autoload/#more" class="more-link">全文</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-02-21T05:48:13.000Z"><a href="/2014/02/21/reading-apprenticeship/">Feb 21 2014</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/02/21/reading-apprenticeship/">软件开发者路线图</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>从书架上取出刚入职看过的一本书 - <code>软件开发者路线图 从学徒到高手</code>。</p>
+<p>三年后再来看，还是会有些共鸣，挺适合web开发者看看。书翻译是烂了点，但是也掩饰不了原作者的一片用心。</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2014/02/21/reading-apprenticeship/#more" class="more-link">全文</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-02-18T07:58:19.000Z"><a href="/2014/02/18/blog-hexo/">Feb 18 2014</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/02/18/blog-hexo/">hexo静态博客建设</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在看了一些程序员的博客后，觉得这个事情很有意义。博客建设是个长期的事情，就从此开始吧。在<a href="http://jimliu.net/2013/09/08/%E4%BD%BF%E7%94%A8hexo%E6%90%AD%E5%BB%BA%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/">Jim Liu’s Blog</a>初步了解了hexo博客的搭建方法后又搜索了其他相关的分享，最后认定就是<a href="http://zespia.tw/hexo/">hexo</a>了。</p>
+<p><code>hexo</code>的优点是自带轻量级的web server，跟<code>github</code>整合的不错。整个环境搭建用了些时间，最后用起来还是很顺畅的。<br>环境搭建的时间主要是花在github部署打通和linux安装node的尝试。</p>
+<p>下面我记录一下我在windows下的搭建过程，linux搭建主要解决node的安装问题就好办了。<code>node</code>对gcc的版本以及依赖要求很高，还好最后用我厂的包安装神器顺利解决。</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2014/02/18/blog-hexo/#more" class="more-link">全文</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-12-28T05:26:55.000Z"><a href="/2013/12/28/gzip-around/">Dec 28 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/12/28/gzip-around/">gzip分析和php实践</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>gzip压缩在web开发中为大家熟知，它也是极为重要的速度优化方案，这里分享一下端产品开发中遇到的问题和个人分析。实际开发中发现，不少开发人员并没有真的理解gzip压缩和它的重要性。出现过以下问题：</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/12/28/gzip-around/#more" class="more-link">全文</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-10-12T17:07:04.000Z"><a href="/2013/10/13/program-design-pattern/">Oct 13 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/10/13/program-design-pattern/">工厂模式的理解和php实践</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>更多人知道的模式应该是单例模式，工厂模式我觉得次之。对象的创建是模式的基础，这些模式或是借力于工厂，或是有些许工厂的影子。</p>
+<p>工厂模式通常分简单工厂、工厂方法和抽象工厂。</p>
+<p>举个很有体会的例子来说明，一个app产品，同时有Android，iOS，Win Phone几个手机平台的适配。假定这几个平台分别有同样的需求，即检测版本是否升级的接口。如果代码里有这样一段决策的逻辑：</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/10/13/program-design-pattern/#more" class="more-link">全文</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  
+<div class="widget about_me">
+  <h3 class="title">ABOUT 小小小牛</h3>
+  <ul class="entry">
+    
+    <li><img width="150" title="avatar" src="http://tp4.sinaimg.cn/1245869163/180/5649763343/1" /></li>
+    
+    
+    <li>life being, dream being</li>
+    
+    <li>微博：<a href="http://weibo.com/abutme" target="_BLANK">@小小小牛</a></li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/blog/">blog</a><small>1</small></li>
+  
+    <li><a href="/categories/编码/">编码</a><small>5</small></li>
+  
+    <li><a href="/categories/网络/">网络</a><small>1</small></li>
+  
+    <li><a href="/categories/阅读/">阅读</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/ZF2/">ZF2</a><small>1</small></li>
+  
+    <li><a href="/tags/gzip压缩/">gzip压缩</a><small>1</small></li>
+  
+    <li><a href="/tags/hexo/">hexo</a><small>1</small></li>
+  
+    <li><a href="/tags/iterator/">iterator</a><small>1</small></li>
+  
+    <li><a href="/tags/markdown/">markdown</a><small>1</small></li>
+  
+    <li><a href="/tags/工厂模式/">工厂模式</a><small>1</small></li>
+  
+    <li><a href="/tags/数据库/">数据库</a><small>1</small></li>
+  
+    <li><a href="/tags/移动端/">移动端</a><small>2</small></li>
+  
+    <li><a href="/tags/程序员/">程序员</a><small>1</small></li>
+  
+    <li><a href="/tags/网络抓包/">网络抓包</a><small>1</small></li>
+  
+    <li><a href="/tags/职业发展/">职业发展</a><small>1</small></li>
+  
+    <li><a href="/tags/设计模式/">设计模式</a><small>2</small></li>
+  
+    <li><a href="/tags/调试/">调试</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2015/02/11/wireshark-network-analyzer/">wireshark网络包分析</a>
+      </li>
+    
+      <li>
+        <a href="/2015/02/10/network-packet-trace/">移动web前端抓包</a>
+      </li>
+    
+      <li>
+        <a href="/2014/05/14/iterator-pattern-around/">让iterator改变php传统编码</a>
+      </li>
+    
+      <li>
+        <a href="/2014/04/22/zf2_study_autoload/">ZF2的autoload机制分析</a>
+      </li>
+    
+      <li>
+        <a href="/2014/02/21/reading-apprenticeship/">软件开发者路线图</a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget duoshuo_recent_comments">
+  <h3 class="title">最新评论</h3>
+  <ul class="entry ds-recent-comments" data-num-items="5" data-show-avatars="0" data-show-title="1" data-show-time="1"></ul>
+</div>
+<!--多说js加载开始，一个页面只需要加载一次 -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"abutme"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!--多说js加载结束，一个页面只需要加载一次 -->
+
+
+  
+<div class="widget links">
+  <h3 class="title">链接</h3>
+  <ul class="entry">
+    
+    <li><a href="http://abutme.net" target="_BLANK">小小小牛</a></li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2015 abutme
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="http://libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+<div style="display:none;">
+  <!-- 你的百度统计代码 -->
+</div>
+</body>
+</html>

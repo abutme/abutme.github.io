@@ -1,0 +1,320 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>hexo静态博客建设 | n&#39;t Niu</title>
+  <meta name="author" content="abutme">
+  
+  <meta name="description" content="在看了一些程序员的博客后，觉得这个事情很有意义。博客建设是个长期的事情，就从此开始吧。在Jim Liu’s Blog初步了解了hexo博客的搭建方法后又搜索了其他相关的分享，最后认定就是hexo了。
+hexo的优点是自带轻量级的web server，跟github整合的不错。整个环境搭建用了些时间，最后用起来还是很顺畅的。环境搭建的时间主要是花在github部署打通和linux安装node的尝试。
+下面我记录一下我在windows下的搭建过程，linux搭建主要解决node的安装问题就好办了。node对gcc的版本以及依赖要求很高，还好最后用我厂的包安装神器顺利解决。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="hexo静态博客建设"/>
+  <meta property="og:site_name" content="n&#39;t Niu"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="n&#39;t Niu" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">n&#39;t Niu</a></h1>
+  <h2><a href="/">Kbhiter or Bkpacker, always</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/reading">Reading List</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="/">Home</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-02-18T07:58:19.000Z"><a href="/2014/02/18/blog-hexo/">Feb 18 2014</a></time>
+      
+      
+  
+    <h1 class="title">hexo静态博客建设</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在看了一些程序员的博客后，觉得这个事情很有意义。博客建设是个长期的事情，就从此开始吧。在<a href="http://jimliu.net/2013/09/08/%E4%BD%BF%E7%94%A8hexo%E6%90%AD%E5%BB%BA%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/" target="_blank" rel="external">Jim Liu’s Blog</a>初步了解了hexo博客的搭建方法后又搜索了其他相关的分享，最后认定就是<a href="http://zespia.tw/hexo/" target="_blank" rel="external">hexo</a>了。</p>
+<p><code>hexo</code>的优点是自带轻量级的web server，跟<code>github</code>整合的不错。整个环境搭建用了些时间，最后用起来还是很顺畅的。<br>环境搭建的时间主要是花在github部署打通和linux安装node的尝试。</p>
+<p>下面我记录一下我在windows下的搭建过程，linux搭建主要解决node的安装问题就好办了。<code>node</code>对gcc的版本以及依赖要求很高，还好最后用我厂的包安装神器顺利解决。</p>
+<a id="more"></a>
+<h2 id="windows用户">windows用户</h2><p>顺便说一下，本人机器是win7 x86</p>
+<p><em>1. 安装git客户端和node.js</em></p>
+<p>git是windows 8风格的，很简约，已经够用了。<br>安装过程表明已经自动注册环境变量了，可以在命令行用npm命令。</p>
+<p><em>2. 安装hexo</em></p>
+<pre><code>$ npm <span class="keyword">install</span> -g hexo
+</code></pre><p>在命令行可以运行hexo命令就表示OK了。</p>
+<p><em>3. hexo试用</em></p>
+<p>新建一个文件夹，在命令行下cd到该目录，执行一下：</p>
+<pre><code><span class="variable">$ </span>hexo init
+</code></pre><p>执行结果是会在当前目录下自动生成项目的基础框架和文件。再执行一下：</p>
+<pre><code>$ hexo <span class="keyword">server</span>
+</code></pre><p>启动web server，提示<code>4000</code>端口打开（可以通过-p选项指定其他端口号）。</p>
+<p>在浏览器敲入<a href="http://localhost:4000" target="_blank" rel="external">http://localhost:4000</a><br>就可以看到hexo默认提供的主题和Hello World了。</p>
+<p>本人不喜欢默认主题，于是我从<a href="https://github.com/LiuJi-Jim/hexo-theme-light" target="_blank" rel="external">Jim Liu’s Git Repo</a>中把light主题搞下来了，这个主题改的不错。加到项目需要修改theme配置，同时需要修改一个css的问题，否则发文章后标题会没有icon font图标。</p>
+<p><em>4. 配置修改</em></p>
+<p>配置修改的关键是<code>_config.yaml</code>文件。<br>在项目根目录和具体主题目录下都用这个配置文件，具体配置方法可以试出来。<br>需要注意的是，配置修改需要停启server，而文章的修改是刷新生效的。</p>
+<p><em>5. 组件添加</em></p>
+<p>本人只添加了评论组件<a href="http://duoshuo.com/" target="_blank" rel="external">多说</a>。进入duoshuo的创建站点功能，填入站点信息，拿到一段js通用代码。duoshuo提供评论的后台管理功能。</p>
+<p>把通用代码命名为<code>duoshuo.ejs</code>放到对应主题的<code>layout/_partial/</code>目录下，同时在需要引用duoshuo的主题布局模板（如：layout目录下的post.ejs）中加入引用的代码。具体参考本人后面附上的Git Repo源文件。</p>
+<p><em>6. 域名绑定</em></p>
+<p>域名绑定先仔细阅读<a href="https://help.github.com/categories/20/articles" target="_blank" rel="external">github的官方说明</a>，其提供两种页面发布方式：用户/组织页和项目页。</p>
+<p>前者，一个特殊的项目，需要将发布的页面部署在<code>username/username.github.io</code>的主干。后者，则需将发布页面部署在该项目<code>username/projectname</code>的<code>gh-pages</code>分支。</p>
+<p>有人是将博客源代码部署在项目的主干，发布后的代码部署到gh-pages分支，这样维护起来只需要一个项目。<br>本人是新建了一个git项目用来维护源码，发布页面部署到<code>abutme/abutme.github.io</code>的主干。</p>
+<p>github的发布方式已经提供了一个外网访问域名：<code>username.github.io</code>；项目页面的域名：<code>username.github.io/projectname</code>。这两种访问都路由到对应的index.html。</p>
+<p>本人提前在<a href="http://www.net.cn/" target="_blank" rel="external">万网</a>申请了个人域名，在域名管理后台，在域名解析中增加A记录指向git的ip，数分钟后生效。</p>
+<p><em>7. github账号和信任关系</em></p>
+<p>没有账号就需要注册github账号。</p>
+<p>信任关系的建立参考github官方说明。<br>流程就是在本机生成<code>SSH Key</code>，将它添加到git账号的<code>SSH Keys</code>设置里。<br>这样每次连接github的时候，不需要填用户名和密码，为后续的自动deploy做准备。</p>
+<p>确认信任关系的方法是：</p>
+<pre><code><span class="variable">$ </span>ssh -<span class="constant">T </span>git<span class="variable">@github</span>.com
+</code></pre><p>如果出现欢迎信息（Hi <em>username</em> …）就表示OK了。</p>
+<p><em>8. hexo自动部署</em></p>
+<p>以上工作完成后，需要修改hexo项目的配置文件。将deploy部分配置为：<br><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">deploy</span>: <span class="string"></span></span><br><span class="line">    <span class="attribute">type</span>: <span class="string">github</span></span><br><span class="line">    <span class="attribute">repository</span>: <span class="string">https://github.com/abutme/abutme.github.io.git</span></span><br></pre></td></tr></table></figure></p>
+<p>个人理解，hexo的自动发布也是会按照github的发布规则来自动识别是发布到主干还是gh-pages分支的。</p>
+<p><em>9. 文章编辑和维护</em></p>
+<p>hexo的操作可以参考hexo的官方说明。</p>
+<p>本人是将github源码clone到本地，在该项目里进行hexo的操作，这样修改源码和本地部署就一体了。<br>确认无误后，再<code>hexo deploy</code>自动部署到git发布，最后再把源码ci到源码的git项目。</p>
+<p><em>10. 推荐及参考</em></p>
+<p><a href="https://www.zybuluo.com/mdeditor" target="_blank" rel="external">MarkDown标记语法参考</a></p>
+<p><a href="https://github.com/abutme/abutme-net" target="_blank" rel="external">小小小牛的Blog源码</a></p>
+<h3 id="以上~">以上~</h3>
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/blog/">blog</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/hexo/">hexo</a>, <a href="/tags/markdown/">markdown</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread" data-title="hexo静态博客建设" data-url="http://abutme.net/2014/02/18/blog-hexo/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"abutme"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+<div class="widget about_me">
+  <h3 class="title">ABOUT 小小小牛</h3>
+  <ul class="entry">
+    
+    <li><img width="150" title="avatar" src="http://tp4.sinaimg.cn/1245869163/180/5649763343/1" /></li>
+    
+    
+    <li>life being, dream being</li>
+    
+    <li>微博：<a href="http://weibo.com/abutme" target="_BLANK">@小小小牛</a></li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/blog/">blog</a><small>1</small></li>
+  
+    <li><a href="/categories/编码/">编码</a><small>5</small></li>
+  
+    <li><a href="/categories/网络/">网络</a><small>1</small></li>
+  
+    <li><a href="/categories/阅读/">阅读</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/ZF2/">ZF2</a><small>1</small></li>
+  
+    <li><a href="/tags/gzip压缩/">gzip压缩</a><small>1</small></li>
+  
+    <li><a href="/tags/hexo/">hexo</a><small>1</small></li>
+  
+    <li><a href="/tags/iterator/">iterator</a><small>1</small></li>
+  
+    <li><a href="/tags/markdown/">markdown</a><small>1</small></li>
+  
+    <li><a href="/tags/工厂模式/">工厂模式</a><small>1</small></li>
+  
+    <li><a href="/tags/数据库/">数据库</a><small>1</small></li>
+  
+    <li><a href="/tags/移动端/">移动端</a><small>2</small></li>
+  
+    <li><a href="/tags/程序员/">程序员</a><small>1</small></li>
+  
+    <li><a href="/tags/网络抓包/">网络抓包</a><small>1</small></li>
+  
+    <li><a href="/tags/职业发展/">职业发展</a><small>1</small></li>
+  
+    <li><a href="/tags/设计模式/">设计模式</a><small>2</small></li>
+  
+    <li><a href="/tags/调试/">调试</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2015/02/11/wireshark-network-analyzer/">wireshark网络包分析</a>
+      </li>
+    
+      <li>
+        <a href="/2015/02/10/network-packet-trace/">移动web前端抓包</a>
+      </li>
+    
+      <li>
+        <a href="/2014/05/14/iterator-pattern-around/">让iterator改变php传统编码</a>
+      </li>
+    
+      <li>
+        <a href="/2014/04/22/zf2_study_autoload/">ZF2的autoload机制分析</a>
+      </li>
+    
+      <li>
+        <a href="/2014/02/21/reading-apprenticeship/">软件开发者路线图</a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget duoshuo_recent_comments">
+  <h3 class="title">最新评论</h3>
+  <ul class="entry ds-recent-comments" data-num-items="5" data-show-avatars="0" data-show-title="1" data-show-time="1"></ul>
+</div>
+<!--多说js加载开始，一个页面只需要加载一次 -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"abutme"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!--多说js加载结束，一个页面只需要加载一次 -->
+
+
+  
+<div class="widget links">
+  <h3 class="title">链接</h3>
+  <ul class="entry">
+    
+    <li><a href="http://abutme.net" target="_BLANK">小小小牛</a></li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2015 abutme
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="http://libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+<div style="display:none;">
+  <!-- 你的百度统计代码 -->
+</div>
+</body>
+</html>

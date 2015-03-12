@@ -1,0 +1,318 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>gzip分析和php实践 | n&#39;t Niu</title>
+  <meta name="author" content="abutme">
+  
+  <meta name="description" content="gzip压缩在web开发中为大家熟知，它也是极为重要的速度优化方案，这里分享一下端产品开发中遇到的问题和个人分析。实际开发中发现，不少开发人员并没有真的理解gzip压缩和它的重要性。出现过以下问题：">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="gzip分析和php实践"/>
+  <meta property="og:site_name" content="n&#39;t Niu"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="n&#39;t Niu" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">n&#39;t Niu</a></h1>
+  <h2><a href="/">Kbhiter or Bkpacker, always</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/reading">Reading List</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+      <li><a href="/">Home</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-12-28T05:26:55.000Z"><a href="/2013/12/28/gzip-around/">Dec 28 2013</a></time>
+      
+      
+  
+    <h1 class="title">gzip分析和php实践</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>gzip压缩在web开发中为大家熟知，它也是极为重要的速度优化方案，这里分享一下端产品开发中遇到的问题和个人分析。实际开发中发现，不少开发人员并没有真的理解gzip压缩和它的重要性。出现过以下问题：</p>
+<a id="more"></a>
+<blockquote>
+<ol>
+<li><p>服务端rd在接口中手动gzcompress做压缩输出</p>
+</li>
+<li><p>服务端rd只知道有统一gzip压缩，并没有联调确认是否开启</p>
+</li>
+<li><p>客户端rd上传的header不支持gzip的返回</p>
+</li>
+</ol>
+</blockquote>
+<h2 id="RFC解读">RFC解读</h2><p>为此，我读了下gzip的<a href="http://www.faqs.org/rfcs/rfc1952.html" target="_blank" rel="external">RFC 1952</a>，gzip格式的基本构成：</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">含义：</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="comment">ID1</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="comment">ID2</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="comment">CM</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="comment">FLG</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">MTIME</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">XFL</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="comment">OS</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span></span><br><span class="line"></span><br><span class="line"><span class="comment">示例：|</span>  <span class="comment">0x1f</span> <span class="comment">|</span>   <span class="comment">8b</span>  <span class="comment">|</span>  <span class="comment">08</span>  <span class="comment">|</span>   <span class="comment">00</span>  <span class="comment">|</span>     <span class="comment">00000000</span>      <span class="comment">|</span>   <span class="comment">00</span>   <span class="comment">|</span>  <span class="comment">03</span>  <span class="comment">|</span>  <span class="comment">(more</span><span class="literal">-</span><span class="literal">-</span>&gt;<span class="comment">)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">Byte:</span> <span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">+</span></span><br></pre></td></tr></table></figure>
+<p>前10个字节是header必带的，FLG低五位的置位会影响header可选区。可以认为完整的GZIP组成如下：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">FIXED</span><span class="params">(<span class="number">10</span>)</span></span>+OPT <span class="function"><span class="title">HDR</span><span class="params">(EXTRA+FNAME+FCOMMENT+CRC16)</span></span>+ COMPRESSED BLOCKS + OPT <span class="function"><span class="title">FTR</span><span class="params">(CRC32+ISIZE，<span class="number">8</span>)</span></span></span><br></pre></td></tr></table></figure>
+<p>对比这个RFC，php手册评论中提到的<a href="http://cn2.php.net/manual/zh/function.gzdecode.php" target="_blank" rel="external">gzdecode</a><code>函数实现有问题</code>，由于FLG的可配位都为0，还没有发现bad case，后面持续关注。</p>
+<h2 id="GZIP测试">GZIP测试</h2><p><code>COMPRESSED BLOCKS</code>可以用<code>gzinflate</code>来decode，可以认为<code>gzdeflate</code>函数是不带header和footer的纯净压缩。</p>
+<p>比较gzcompress和gzdeflate可以发现，gzcompress是在头部和尾部分别添加了2、4个字节。</p>
+<p>测试代码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$headers</span>[] = <span class="string">'Accept-Encoding: gzip'</span>;</span><br><span class="line"><span class="variable">$ch</span> = curl_init(<span class="string">'http://m.baidu.com'</span>);</span><br><span class="line"></span><br><span class="line">curl_setopt(<span class="variable">$ch</span>, CURLOPT_BINARYTRANSFER, <span class="keyword">true</span>);</span><br><span class="line">curl_setopt(<span class="variable">$ch</span>, CURLOPT_RETURNTRANSFER, <span class="keyword">true</span>);</span><br><span class="line">curl_setopt(<span class="variable">$ch</span>, CURLOPT_HTTPHEADER, <span class="variable">$headers</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$gzRaw</span> = curl_exec(<span class="variable">$ch</span>);</span><br><span class="line"><span class="variable">$fh</span> = fopen(<span class="string">'gzrawfile'</span>, <span class="string">'w'</span>);</span><br><span class="line">fwrite(<span class="variable">$fh</span>, <span class="variable">$gzRaw</span>);</span><br><span class="line">fclose(<span class="variable">$fh</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$gzRawHdr</span> = unpack(<span class="string">'H20'</span>, substr(<span class="variable">$gzRaw</span>, <span class="number">0</span>, <span class="number">10</span>));</span><br><span class="line"></span><br><span class="line"><span class="variable">$gzCompressedBody</span> = substr(<span class="variable">$gzRaw</span>, <span class="number">10</span>);</span><br><span class="line"><span class="variable">$gzinflateData</span> = gzinflate(<span class="variable">$gzCompressedBody</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$gzCompressData</span> = gzcompress(<span class="variable">$gzinflateData</span>);</span><br><span class="line"><span class="variable">$gzCompressHdr</span> = unpack(<span class="string">'H8'</span>, substr(<span class="variable">$gzCompressData</span>, <span class="number">0</span>, <span class="number">4</span>));</span><br><span class="line"><span class="variable">$gzCompressFtr</span> = unpack(<span class="string">'H32'</span>, substr(<span class="variable">$gzCompressData</span>, -<span class="number">16</span>));</span><br><span class="line">error_log(print_r(<span class="variable">$gzCompressFtr</span>,<span class="keyword">true</span>),<span class="number">3</span>,<span class="string">'/tmp/xxy'</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$gzDeflateData</span> = gzdeflate(<span class="variable">$gzinflateData</span>);</span><br><span class="line"><span class="variable">$gzDeflateHdr</span> = unpack(<span class="string">'H8'</span>, substr(<span class="variable">$gzDeflateData</span>, <span class="number">0</span>, <span class="number">4</span>));</span><br><span class="line"><span class="variable">$gzDeflateFtr</span> = unpack(<span class="string">'H16'</span>, substr(<span class="variable">$gzDeflateData</span>, -<span class="number">8</span>));</span><br><span class="line">error_log(print_r(<span class="variable">$gzDeflateFtr</span>,<span class="keyword">true</span>),<span class="number">3</span>,<span class="string">'/tmp/xxy'</span>);</span><br></pre></td></tr></table></figure>
+<p>实践得出以下结论：</p>
+<blockquote>
+<ol>
+<li><p>curl只要设置了<code>CURLOPT_ENCODING</code>选项，就会自动gzip decode，测试时不设置就可以看原始gzip返回。在shell命令行下curl，可以通过-H参数参看raw数据</p>
+</li>
+<li><p>gzencode/gzcompress/gzdeflate压缩算法是一致的，即CM=8的DEFLATE算法</p>
+</li>
+<li><p>gzdecode函数在php 5.4以后才支持，可以借助gzinflate实现gzdecode</p>
+</li>
+</ol>
+</blockquote>
+<h2 id="GZIP的开发关注点">GZIP的开发关注点</h2><p>gzip的必要性不多说，说一下个人的看法：</p>
+<blockquote>
+<ol>
+<li><p>在端产品的开发联调中，要检查Accept-Encoding</p>
+</li>
+<li><p>检查web server的压缩能力，尤其是新产品上线。如果有多层web server的，开启压缩的那一层，需要加到开发、测试和联调环境中。</p>
+</li>
+<li><p>没有上传header支持的用户流量，进行分析，是速度优化的一个点</p>
+</li>
+</ol>
+</blockquote>
+<p>一切为了流量和速度。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/编码/">编码</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/gzip压缩/">gzip压缩</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread" data-title="gzip分析和php实践" data-url="http://abutme.net/2013/12/28/gzip-around/"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"abutme"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  
+<div class="widget about_me">
+  <h3 class="title">ABOUT 小小小牛</h3>
+  <ul class="entry">
+    
+    <li><img width="150" title="avatar" src="http://tp4.sinaimg.cn/1245869163/180/5649763343/1" /></li>
+    
+    
+    <li>life being, dream being</li>
+    
+    <li>微博：<a href="http://weibo.com/abutme" target="_BLANK">@小小小牛</a></li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/blog/">blog</a><small>1</small></li>
+  
+    <li><a href="/categories/编码/">编码</a><small>5</small></li>
+  
+    <li><a href="/categories/网络/">网络</a><small>1</small></li>
+  
+    <li><a href="/categories/阅读/">阅读</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/ZF2/">ZF2</a><small>1</small></li>
+  
+    <li><a href="/tags/gzip压缩/">gzip压缩</a><small>1</small></li>
+  
+    <li><a href="/tags/hexo/">hexo</a><small>1</small></li>
+  
+    <li><a href="/tags/iterator/">iterator</a><small>1</small></li>
+  
+    <li><a href="/tags/markdown/">markdown</a><small>1</small></li>
+  
+    <li><a href="/tags/工厂模式/">工厂模式</a><small>1</small></li>
+  
+    <li><a href="/tags/数据库/">数据库</a><small>1</small></li>
+  
+    <li><a href="/tags/移动端/">移动端</a><small>2</small></li>
+  
+    <li><a href="/tags/程序员/">程序员</a><small>1</small></li>
+  
+    <li><a href="/tags/网络抓包/">网络抓包</a><small>1</small></li>
+  
+    <li><a href="/tags/职业发展/">职业发展</a><small>1</small></li>
+  
+    <li><a href="/tags/设计模式/">设计模式</a><small>2</small></li>
+  
+    <li><a href="/tags/调试/">调试</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2015/02/11/wireshark-network-analyzer/">wireshark网络包分析</a>
+      </li>
+    
+      <li>
+        <a href="/2015/02/10/network-packet-trace/">移动web前端抓包</a>
+      </li>
+    
+      <li>
+        <a href="/2014/05/14/iterator-pattern-around/">让iterator改变php传统编码</a>
+      </li>
+    
+      <li>
+        <a href="/2014/04/22/zf2_study_autoload/">ZF2的autoload机制分析</a>
+      </li>
+    
+      <li>
+        <a href="/2014/02/21/reading-apprenticeship/">软件开发者路线图</a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+<div class="widget duoshuo_recent_comments">
+  <h3 class="title">最新评论</h3>
+  <ul class="entry ds-recent-comments" data-num-items="5" data-show-avatars="0" data-show-title="1" data-show-time="1"></ul>
+</div>
+<!--多说js加载开始，一个页面只需要加载一次 -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"abutme"};
+(function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();
+</script>
+<!--多说js加载结束，一个页面只需要加载一次 -->
+
+
+  
+<div class="widget links">
+  <h3 class="title">链接</h3>
+  <ul class="entry">
+    
+    <li><a href="http://abutme.net" target="_BLANK">小小小牛</a></li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2015 abutme
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="http://libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+<div style="display:none;">
+  <!-- 你的百度统计代码 -->
+</div>
+</body>
+</html>
